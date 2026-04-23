@@ -7,6 +7,30 @@ from rich.table import Table
 app= typer.Typer()
 console=Console()
 
+@app.command()
+def show_bars(habit:str):
+    '''show a bar chart yuppee'''
+    conn=get_connection()
+    cursor=conn.cursor()
+    var=cursor.execute("SELECT * from habits where name=?",(habit,)).fetchone()
+    if not var:
+        console.print(f"[yellow]Habit not found: {habit}[/yellow]")
+        conn.close()
+        return
+    habit_id=var[0]
+    dates=cursor.execute("SELECT DISTINCT DATE (logged_at) FROM habit_logs WHERE habit_id=? AND DATE(logged_at)>= ? ORDER BY logged_at DESC",(habit_id, (datetime.now()-timedelta(days=13)))).fetchall()
+    logged_dates={row[0] for row in dates}
+    for i in range (14):
+        date=(datetime.now()-timedelta(days=i)).date().isoformat()
+        if date in logged_dates:
+            console.print(f"[green]{date}[/green]: [green]█[/green]")
+        else:
+            console.print(f"[red]{date}[/red]: [red]░[/red]")
+    
+    conn.close()
+        
+    
+
 
 @app.command()
 def stats(habit:str):
