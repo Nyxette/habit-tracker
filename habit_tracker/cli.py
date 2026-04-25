@@ -3,9 +3,42 @@ from rich.console import Console
 from db import init_db, get_connection
 from datetime import datetime,timedelta
 from rich.table import Table
+from rich.prompt import Prompt
+
 
 app= typer.Typer()
 console=Console()
+
+@app.command()
+def menu():
+    console.print("[green]Welcome to the Habit Tracker![/green]")
+    choice=Prompt.ask("Choose an option",choices=["add habit","log habit","stats","show bar graph","list habits","edit habit name","delete a habit","exit"])
+    if choice=="add habit":
+        name=Prompt.ask("Enter the name of the habit")
+        add(name)
+    elif choice=="log habit":
+        name=Prompt.ask("Enter the name of the habit to log")
+        log(name)
+    elif choice=="stats":
+        name=Prompt.ask("Enter the name of the habit to view stats")
+        stats(name)
+    elif choice=="show bar graph":
+        name=Prompt.ask("Enter the name of the habit to view bar graph")
+        show_bars(name)
+    elif choice=="list habits":
+        list_habits()
+    elif choice=="edit habit name":
+        old_name=Prompt.ask("Enter the current name of the habit")
+        new_name=Prompt.ask("Enter the new name of the habit")
+        edit(old_name,new_name)
+    elif choice=="delete a habit":
+        name=Prompt.ask("Enter the name of the habit to delete")
+        delete(name)
+    elif choice=="exit":
+        console.print("[green]Goodbye![/green]")
+    else:
+        console.print("[red]Invalid option. Please try again.[/red]")
+
 
 @app.command()
 def show_bars(habit:str):
