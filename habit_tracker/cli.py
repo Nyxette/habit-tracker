@@ -4,40 +4,63 @@ from db import init_db, get_connection
 from datetime import datetime,timedelta
 from rich.table import Table
 from rich.prompt import Prompt
+from apscheduler.schedulers.blocking import BlockingScheduler
+from plyer import notification 
 
 
 app= typer.Typer()
 console=Console()
 
+
+@app.command()
+def send_reminder():
+
+    notification.notify(
+        title="CLI Habit Tracker Project",
+        message="Time to log your habits!!!!!!! RAAAHH",
+        timeout=10
+    )
+
+@app.command()
+def start_reminder(time:str):
+    hour,minute=time.split(":")
+    scheduler=BlockingScheduler()
+    scheduler.add_job(send_reminder,"cron",hour=int(hour),minute=int(minute))
+    console.print(f"[green]Reminder set for {time} every day, Press Ctrl+C to stop[/green]")
+    scheduler.start()
+
+
 @app.command()
 def menu():
     console.print("[green]Welcome to the Habit Tracker![/green]")
-    choice=Prompt.ask("Choose an option",choices=["add habit","log habit","stats","show bar graph","list habits","edit habit name","delete a habit","exit"])
-    if choice=="add habit":
-        name=Prompt.ask("Enter the name of the habit")
-        add(name)
-    elif choice=="log habit":
-        name=Prompt.ask("Enter the name of the habit to log")
-        log(name)
-    elif choice=="stats":
-        name=Prompt.ask("Enter the name of the habit to view stats")
-        stats(name)
-    elif choice=="show bar graph":
-        name=Prompt.ask("Enter the name of the habit to view bar graph")
-        show_bars(name)
-    elif choice=="list habits":
-        list_habits()
-    elif choice=="edit habit name":
-        old_name=Prompt.ask("Enter the current name of the habit")
-        new_name=Prompt.ask("Enter the new name of the habit")
-        edit(old_name,new_name)
-    elif choice=="delete a habit":
-        name=Prompt.ask("Enter the name of the habit to delete")
-        delete(name)
-    elif choice=="exit":
-        console.print("[green]Goodbye![/green]")
-    else:
-        console.print("[red]Invalid option. Please try again.[/red]")
+    while True:
+        choice=Prompt.ask("Choose an option",choices=["add habit","log habit","stats","show bar graph","list habits","edit habit name","delete a habit","exit"])
+        if choice=="add habit":
+            name=Prompt.ask("Enter the name of the habit")
+            add(name)
+        elif choice=="log habit":
+            name=Prompt.ask("Enter the name of the habit to log")
+            log(name)
+        elif choice=="stats":
+            name=Prompt.ask("Enter the name of the habit to view stats")
+            stats(name)
+        elif choice=="show bar graph":
+            name=Prompt.ask("Enter the name of the habit to view bar graph")
+            show_bars(name)
+        elif choice=="list habits":
+            list_habits()
+        elif choice=="edit habit name":
+            old_name=Prompt.ask("Enter the current name of the habit")
+            new_name=Prompt.ask("Enter the new name of the habit")
+            edit(old_name,new_name)
+        elif choice=="delete a habit":
+            name=Prompt.ask("Enter the name of the habit to delete")
+            delete(name)
+        elif choice=="exit":
+            console.print("[green]Goodbye![/green]")
+            break
+        else:
+            console.print("[red]Invalid option. Please try again.[/red]")
 
 
 @app.command()
